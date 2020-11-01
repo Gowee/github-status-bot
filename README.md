@@ -1,2 +1,3 @@
 # github-status-bot
- potential-octo-memory
+The bot runs in @github_status.
+<!-- potential-octo-memory -->
