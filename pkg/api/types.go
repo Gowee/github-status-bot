@@ -4,7 +4,7 @@ import "time"
 
 type SummaryQueryResult struct {
 	Page                  Page          `json:"page"`
-	Components            []Components  `json:"components"`
+	Components            []Component   `json:"components"`
 	Incidents             []Incident    `json:"incidents"`
 	ScheduledMaintenances []interface{} `json:"scheduled_maintenances"`
 	Status                Status        `json:"status"`
@@ -14,8 +14,8 @@ type IncidentsQueryResult struct {
 	Incidents []Incident `json:"incidents"`
 }
 type ComponentsQueryResult struct {
-	Page       Page       `json:"page"`
-	Components Components `json:"components"`
+	Page       Page        `json:"page"`
+	Components []Component `json:"components"`
 }
 type StatusQueryResult struct {
 	Page   Page   `json:"page"`
@@ -86,7 +86,7 @@ type Page struct {
 	TimeZone  string    `json:"time_zone"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
-type Components struct {
+type Component struct {
 	ID                 string      `json:"id"`
 	Name               string      `json:"name"`
 	Status             string      `json:"status"`
@@ -131,5 +131,5 @@ type Incident struct {
 	StartedAt       time.Time        `json:"started_at"`
 	PageID          string           `json:"page_id"`
 	IncidentUpdates []IncidentUpdate `json:"incident_updates"`
-	Components      []Components     `json:"components"`
+	Components      []Component      `json:"components"`
 }

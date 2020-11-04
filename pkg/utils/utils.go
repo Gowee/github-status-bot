@@ -26,3 +26,14 @@ func Min(x, y int) int {
 }
 
 // Ref: https://yourbasic.org/golang/max-min-function/
+
+// func MapAndJoin(fn func([]interface{}) string, array []interface{}) string {
+// 	mapped := make([]interface{}, len(array))
+// 	for idx, element := range array {
+// 		if elments.(type) == fn.(type) {
+// 			mapped[idx] = fn(element)
+
+// 		}
+// 	}
+// 	return
+// }

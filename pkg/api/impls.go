@@ -14,11 +14,11 @@ import (
 const updateDateLayout = "2006-01-02 15:04:05"
 
 func (i *Incident) Format() string {
-	statusIcon := "⚠️"
+	statusIcon := i.ToImpactEmoji() // "⚠️"
 	if i.Status == "resolved" {
 		statusIcon = "✅"
 	}
-	header := fmt.Sprintf("%s <b><a href=\"%s\">%s</a></b>\n", statusIcon, i.Shortlink, i.Name)
+	header := fmt.Sprintf("<b><a href=\"%s\">%s</a></b> %s\n", i.Shortlink, i.Name, statusIcon)
 
 	lines := make([]string, 1+utils.Min(3+1, len(i.IncidentUpdates)))
 	lines[0] = header
@@ -40,6 +40,39 @@ func (i *Incident) Format() string {
 
 	}
 	return strings.Join(lines, "\n")
+}
+
+func (i *Incident) ShouldNotify() bool {
+	switch i.Impact {
+	case "none":
+		fallthrough
+	case "minor":
+		return false
+	case "major":
+		fallthrough
+	case "critical":
+		return true
+	default:
+		log.Println("Unknown incident impact: ", i.Impact)
+		return true
+	}
+}
+
+func (i *Incident) ToImpactEmoji() string {
+	impact := i.Impact
+	switch impact {
+	case "none":
+		return ""
+	case "minor":
+		return "❕"
+	case "major":
+		return "❗️"
+	case "critical":
+		return "‼️"
+	default:
+		log.Println("Unknown incident impact: ", impact)
+		return "❔"
+	}
 }
 
 func (u *IncidentUpdate) Format() string {
@@ -82,6 +115,43 @@ func (s *Status) ToEmoji() string {
 		log.Println("Unknown status indicator: ", indicator)
 		return "❔"
 	}
+}
+
+func (c *Component) ToStatusEmoji() string {
+	switch c.Status {
+	case "operational":
+		return "✅"
+	case "degraded_performance":
+		return "❕"
+	case "partial_outage":
+		return "❗️"
+	case "major_outage":
+		return "‼️"
+	default:
+		log.Printf("Unknown status: %s, for component: %s\n", c.Status, c.Name)
+		return "❔"
+	}
+}
+
+func (c *Component) ToStatusSimple() string {
+	// Ref: https://www.githubstatus.com/ source#L1532
+	switch c.Status {
+	case "operational":
+		return "Normal"
+	case "degraded_performance":
+		return "Degraded"
+	case "partial_outage":
+		return "Degraded"
+	case "major_outage":
+		return "Incident"
+	default:
+		log.Printf("Unknown status: %s, for component: %s\n", c.Status, c.Name)
+		return "Unknown"
+	}
+}
+
+func (c *Component) Format() string {
+	return fmt.Sprintf("%s: %s%s", c.Name, c.ToStatusSimple(), c.ToStatusEmoji())
 }
 
 // WTF: why go fmt does not break long lines (by default?)?

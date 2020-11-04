@@ -25,6 +25,7 @@ type Event struct {
 }
 
 type Component struct {
+	// Not yet used
 	ID        string    `json:"id"`
 	Indicator string    `json:"indicator"`
 	UpdatedAt time.Time `json:"updated_at"`
