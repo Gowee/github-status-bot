@@ -3,14 +3,14 @@ package assets
 import (
 	"fmt"
 
-	"github.com/gobuffalo/packr"
+	"github.com/gobuffalo/packr/v2"
 )
 
 // const (
 // 	GITHUB_ICON_NORMAL = "./"
 // )
 
-var box = packr.NewBox("icons")
+var box = packr.New("Icons", "./icons")
 
 var (
 	GitHubIconNormal      = extract("icon-normal.png")

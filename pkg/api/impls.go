@@ -44,7 +44,6 @@ func (i *Incident) Format() string {
 			lines[len(i.IncidentUpdates)-idx] = update.Format()
 		}
 		// WTF: why no built-in reverse?
-
 	}
 	return strings.Join(lines, "\n")
 }
