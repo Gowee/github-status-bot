@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gowee/github-status-bot/internal/bot"
 )
@@ -21,5 +22,9 @@ func main() {
 		return
 	}
 
-	bot.Run(bot.Options{BotToken: token, ChatID: chatID})
+	interval, _ := strconv.ParseInt(os.Getenv("CHECK_INTERVAL"), 10, 32)
+	// log.Println("Check interval: ", interval)
+
+	bot := bot.NewBotFromOptions(bot.Options{BotToken: token, ChatID: chatID, DataFilePath: "./data.json", CheckInterval: time.Duration(interval) * time.Second})
+	bot.Run()
 }

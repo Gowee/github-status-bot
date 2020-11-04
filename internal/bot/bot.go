@@ -8,32 +8,54 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-func Run(options Options) {
-	if err := data.EnsureInitialized(); err != nil {
+type Bot struct {
+	Client        *tb.Bot
+	Chat          *tb.Chat
+	DB            *data.Database
+	CheckInterval time.Duration
+}
+
+func NewBotFromOptions(options Options) Bot {
+	db := data.NewDBFromFilePath(options.DataFilePath)
+	if err := db.EnsureInitialized(); err != nil {
 		log.Fatal(err)
-		return
 	}
 
-	b, err := tb.NewBot(tb.Settings{
+	client, err := tb.NewBot(tb.Settings{
 		Token:  options.BotToken,
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
-
 	if err != nil {
 		log.Fatal(err)
-		return
 	}
 
+	interval := options.CheckInterval
+	if interval <= 0*time.Second {
+		interval = 5 * time.Minute // default interval
+	} else if interval < 5*time.Second {
+		interval = 5 * time.Second // minimum interval
+	}
+	// WTF: why the auto-enforced format for * is different here?
+
+	return Bot{
+		Client:        client,
+		Chat:          &tb.Chat{ID: options.ChatID},
+		DB:            &db,
+		CheckInterval: interval,
+	}
+}
+
+func (bot *Bot) Run() {
 	log.Println("Up and running...")
 
-	b.Handle("/hello", func(m *tb.Message) {
-		b.Send(m.Sender, "Hello World!")
+	bot.Client.Handle("/hello", func(m *tb.Message) {
+		bot.Client.Send(m.Sender, "Hello World!")
 	})
 
-	monitorStop := make(chan struct{})
-	go trackUpdates(b, options.ChatID, monitorStop)
+	stop := make(chan struct{})
+	go bot.trackUpdates(stop)
 
-	b.Start()
+	bot.Client.Start()
 
-	close(monitorStop)
+	close(stop)
 }

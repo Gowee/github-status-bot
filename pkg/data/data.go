@@ -1,25 +1,32 @@
 package data
 
-var storage = Storage{
-	FilePath: "./data.json", // TODO: specifying via options
+type Database struct {
+	storage Storage
 }
 
-func EnsureInitialized() error {
-	return storage.EnsureInitialized(EMTPY_ROOT_DOCUMENT)
+func NewDBFromFilePath(filePath string) Database {
+	return Database{Storage{FilePath: filePath}}
 }
 
-func Load() (*RootDocument, error) {
+// var storage = Storage{
+// 	FilePath: "./data.json", // TODO: specifying via options
+// }
+
+func (db *Database) EnsureInitialized() error {
+	return db.storage.EnsureInitialized(EMTPY_ROOT_DOCUMENT)
+}
+
+func (db *Database) Load() (*RootDocument, error) {
 	document := RootDocument{}
-	err := storage.Load(&document)
-
+	err := db.storage.Load(&document)
 	if err != nil {
 		return nil, err
 	}
 	return &document, nil
 }
 
-func Store(document *RootDocument) error {
-	err := storage.Store(document)
+func (db *Database) Store(document *RootDocument) error {
+	err := db.storage.Store(document)
 	if err != nil {
 		return err
 	}
