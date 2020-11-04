@@ -4,10 +4,10 @@ go 1.15
 
 require (
 	github.com/gobuffalo/packr v1.30.1
-	golang.org/x/lint v0.0.0-20200302205851-738671d3881b // indirect
-	golang.org/x/tools v0.0.0-20201103235415-b653051172e4 // indirect
-	golang.org/x/tools/gopls v0.5.2 // indirect
+	github.com/rogpeppe/go-internal v1.6.1 // indirect
+	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/tucnak/telebot.v2 v2.3.5
+	gopkg.in/yaml.v2 v2.2.4 // indirect
 )
 
 // Note: clean this via `go mod tidy`
