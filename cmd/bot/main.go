@@ -16,9 +16,9 @@ func main() {
 		return
 	}
 
-	chatID, err := strconv.ParseInt(os.Getenv("CHAT_ID"), 10, 64)
-	if chatID == 0 || err != nil {
-		log.Fatal("CHAT_ID is unspecified or invalid")
+	chatID := os.Getenv("CHAT_ID")
+	if chatID == "" {
+		log.Fatal("CHAT_ID is unspecified")
 		return
 	}
 

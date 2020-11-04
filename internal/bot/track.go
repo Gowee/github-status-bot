@@ -14,12 +14,12 @@ import (
 )
 
 var statusPage = api.StatusPage{
-	PageID: "kctbh9vrtdwd",
+	PageID: api.GitHubPageID,
 } // TODO: move into Bot
 
 func (bot *Bot) updateOnce(forceUpdate bool) {
 	if forceUpdate {
-		log.Println("Updating (forced)")
+		log.Println("Force updating (usually the first interval)")
 	}
 	currSts, err := statusPage.QueryOverall()
 	if err != nil {
@@ -32,7 +32,8 @@ func (bot *Bot) updateOnce(forceUpdate bool) {
 		return
 	}
 
-	if forceUpdate || currSts.Status.Indicator != prevData.GlobalStatusIndicator {
+	// Do not force update chat photo/description as its service message cannot be silenced
+	if currSts.Status.Indicator != prevData.GlobalStatusIndicator {
 		err := bot.Client.SetGroupPhoto(bot.Chat,
 			&tb.Photo{File: tb.File{FileReader: currSts.Status.ToIcon()}})
 		if err == nil {
@@ -49,6 +50,9 @@ func (bot *Bot) updateOnce(forceUpdate bool) {
 		} else {
 			log.Println("Failed to update chat title: ", err)
 		}
+	}
+
+	if forceUpdate || currSts.Status.Indicator != prevData.GlobalStatusIndicator {
 		err = bot.Client.SetGroupDescription(bot.Chat, formatMultipleComponents(currSts.Components))
 		if err == nil {
 			log.Println("Updated chat description")

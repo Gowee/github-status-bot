@@ -1,6 +1,7 @@
 package bot
 
 import (
+	"fmt"
 	"log"
 	"time"
 
@@ -26,7 +27,12 @@ func NewBotFromOptions(options Options) Bot {
 		Poller: &tb.LongPoller{Timeout: 10 * time.Second},
 	})
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("Failed to create a telebot Bot", err)
+	}
+
+	chat, err := client.ChatByID(options.ChatID)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("Failed to the chat %s with error %s", options.ChatID, err))
 	}
 
 	interval := options.CheckInterval
@@ -39,7 +45,7 @@ func NewBotFromOptions(options Options) Bot {
 
 	return Bot{
 		Client:        client,
-		Chat:          &tb.Chat{ID: options.ChatID},
+		Chat:          chat,
 		DB:            &db,
 		CheckInterval: interval,
 	}
@@ -47,10 +53,31 @@ func NewBotFromOptions(options Options) Bot {
 
 func (bot *Bot) Run() {
 	log.Println("Up and running...")
-
+	log.Println("  for:", renderChat(bot.Chat))
+	log.Println("  as: ", renderUser(bot.Client.Me))
 	bot.Client.Handle("/hello", func(m *tb.Message) {
 		bot.Client.Send(m.Sender, "Hello World!")
 	})
+
+	// bot.Client.Handle(tb.OnChannelPost, func(m *tb.Message) {
+	// 	if m.Chat.ID == bot.Chat.ID {
+	// 		// channel posts only
+	// 		// log.Println("channel post", m)
+	// 		if m.NewGroupPhoto != nil {
+	// 			if err := bot.Client.Delete(m); err == nil {
+	// 				log.Println("Deleted a NewGroupPhoto message")
+	// 			} else {
+	// 				log.Println("Failed to delete a NewGroupPhoto message", err)
+	// 			}
+	// 		} else if m.NewGroupTitle != "" {
+	// 			if err := bot.Client.Delete(m); err == nil {
+	// 				log.Println("Deleted a NewGroupTitle message")
+	// 			} else {
+	// 				log.Println("Failed to delete a NewGroupTitle message", err)
+	// 			}
+	// 		}
+	// 	}
+	// })
 
 	stop := make(chan struct{})
 	go bot.trackUpdates(stop)

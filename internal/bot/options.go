@@ -7,7 +7,7 @@ import (
 // Options for bot, usually extracted from cli args or env vars.
 type Options struct {
 	BotToken      string
-	ChatID        int64
+	ChatID        string
 	DataFilePath  string
 	CheckInterval time.Duration
 }
