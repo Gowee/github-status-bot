@@ -6,7 +6,7 @@ import (
 	tb "gopkg.in/tucnak/telebot.v2"
 )
 
-var EMTPY_ROOT_DOCUMENT = RootDocument{
+var EmtpyRootDocument = RootDocument{
 	Events:     make(map[string]*Event),
 	Components: make(map[string]*Component),
 }

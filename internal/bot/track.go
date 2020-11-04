@@ -35,7 +35,10 @@ func (bot *Bot) updateOnce() {
 		if err != nil {
 			log.Println("Failed to update chat photo: ", err)
 		}
-		err = bot.Client.SetGroupTitle(bot.Chat, fmt.Sprintf("GitHub: %s %s", currSts.Status.Description, currSts.Status.ToEmoji()))
+		err = bot.Client.SetGroupTitle(
+			bot.Chat,
+			fmt.Sprintf("GitHub: %s %s", currSts.Status.Description, currSts.Status.ToEmoji()),
+		)
 		if err != nil {
 			log.Println("Failed to update chat title: ", err)
 		}
@@ -47,7 +50,11 @@ func (bot *Bot) updateOnce() {
 	for _, incident := range currSts.Incidents[0:utils.Min(10, len(currSts.Incidents))] {
 		if prevEvent, ok := prevData.Events[incident.ID]; ok {
 			if incident.UpdatedAt.After(prevEvent.UpdatedAt) {
-				_, err := bot.Client.Edit(prevEvent.MessageReference, incident.Format(), &tb.SendOptions{DisableWebPagePreview: true, ParseMode: "HTML"})
+				_, err := bot.Client.Edit(
+					prevEvent.MessageReference,
+					incident.Format(),
+					&tb.SendOptions{DisableWebPagePreview: true, ParseMode: "HTML"},
+				)
 				// WTF: why telebot's error is not typed so that to compared with errors.Is?
 
 				// err != tb.ErrMessageNotModified does not work due to a bug.
@@ -63,7 +70,10 @@ func (bot *Bot) updateOnce() {
 				prevEvent.UpdatedAt = incident.UpdatedAt
 			}
 		} else {
-			msg, err := bot.Client.Send(tb.ChatID(bot.Chat.ID), incident.Format(), &tb.SendOptions{DisableWebPagePreview: true, ParseMode: "HTML"})
+			msg, err := bot.Client.Send(
+				tb.ChatID(bot.Chat.ID),
+				incident.Format(),
+				&tb.SendOptions{DisableWebPagePreview: true, ParseMode: "HTML"})
 			if err != nil {
 				log.Println("Failed to send message for incident: ", incident.ID, err)
 				continue

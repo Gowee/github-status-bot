@@ -24,6 +24,13 @@ func main() {
 
 	interval, _ := strconv.ParseInt(os.Getenv("CHECK_INTERVAL"), 10, 32)
 
-	bot := bot.NewBotFromOptions(bot.Options{BotToken: token, ChatID: chatID, DataFilePath: "./data.json", CheckInterval: time.Duration(interval) * time.Second})
+	bot := bot.NewBotFromOptions(
+		bot.Options{
+			BotToken:      token,
+			ChatID:        chatID,
+			DataFilePath:  "./data.json",
+			CheckInterval: time.Duration(interval) * time.Second,
+		},
+	)
 	bot.Run()
 }

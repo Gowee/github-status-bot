@@ -13,7 +13,7 @@ func NewDBFromFilePath(filePath string) Database {
 // }
 
 func (db *Database) EnsureInitialized() error {
-	return db.storage.EnsureInitialized(EMTPY_ROOT_DOCUMENT)
+	return db.storage.EnsureInitialized(EmtpyRootDocument)
 }
 
 func (db *Database) Load() (*RootDocument, error) {
