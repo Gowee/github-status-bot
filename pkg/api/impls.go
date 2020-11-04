@@ -15,16 +15,23 @@ const updateDateLayout = "2006-01-02 15:04:05"
 
 func (i *Incident) Format() string {
 	statusIcon := i.ToImpactEmoji() // "⚠️"
+	// If the status indicates that the indident has finished, then the impact does not matter.
 	if i.Status == "resolved" {
 		statusIcon = "✅"
+	} else if i.Status == "postmortem" {
+		statusIcon = "☑️"
 	}
 	header := fmt.Sprintf("<b><a href=\"%s\">%s</a></b> %s\n", i.Shortlink, i.Name, statusIcon)
+	// if i.Status != "resolved" {
+	// 	header += fmt.Sprintf("(%s)", i.Status)
+	// }
 
 	lines := make([]string, 1+utils.Min(3+1, len(i.IncidentUpdates)))
 	lines[0] = header
-	// WTF: why no dynamic array?
+	// W-T-F: why no dynamic array?
 	// 	ref: https://stackoverflow.com/questions/33834742/remove-and-adding-elements-to-array-in-go-lang
 	// 	ref: https://ewencp.org/blog/golang-iterators/index.html
+	// Update: It is: https://tour.golang.org/moretypes/13
 	// WTF: why no combinator such as map?
 	if len(i.IncidentUpdates) > 3 {
 		// The original updates are sorted descendingly by date.
@@ -58,6 +65,17 @@ func (i *Incident) ShouldNotify() bool {
 	}
 }
 
+func (i *Incident) IsFinished() bool {
+	switch i.Status {
+	case "resolved":
+		fallthrough
+	case "postmortem":
+		return true
+	default:
+		return false
+	}
+}
+
 func (i *Incident) ToImpactEmoji() string {
 	impact := i.Impact
 	switch impact {
@@ -75,9 +93,75 @@ func (i *Incident) ToImpactEmoji() string {
 	}
 }
 
+func (sm *ScheduledMaintenance) Format() string {
+	statusIcon := sm.ToStatusEmoji()
+	// Currently the impact is not showed.
+	header := fmt.Sprintf("<b><a href=\"%s\">%s</a></b> %s\n", sm.Shortlink, sm.Name, statusIcon)
+
+	lines := make([]string, 1+utils.Min(3+1, len(sm.IncidentUpdates)))
+	lines[0] = header
+	if len(sm.IncidentUpdates) > 3 {
+		lines[1] = sm.IncidentUpdates[len(sm.IncidentUpdates)-1].Format()
+		lines[2] = fmt.Sprintf("<pre>----- %d update omitted -----</pre>", len(sm.IncidentUpdates)-3)
+		lines[3] = sm.IncidentUpdates[1].Format()
+		lines[4] = sm.IncidentUpdates[0].Format()
+	} else {
+		for idx, update := range sm.IncidentUpdates {
+			lines[len(sm.IncidentUpdates)-idx] = update.Format()
+		}
+	}
+	return strings.Join(lines, "\n")
+}
+
+func (sm *ScheduledMaintenance) ToStatusEmoji() string {
+	status := sm.Status
+	switch status {
+	case "scheduled":
+		return "ℹ️"
+	case "in_progress":
+		return "⏳"
+	case "verifying":
+		return "⌛"
+	case "completed":
+		// Some maintenance event indicates a break change which might not be fine.
+		// So here use a check mark different to resolved incidents to distinguish.
+		return "☑️"
+	default:
+		log.Println("Unknown scheduled maintenance status: ", status)
+		return "❔"
+	}
+}
+
+func (sm *ScheduledMaintenance) ShouldNotify() bool {
+	switch sm.Impact {
+	case "none":
+		fallthrough
+	case "minor":
+		return false
+	case "major":
+		fallthrough
+	case "critical":
+		fallthrough
+	case "maintenance":
+		return true
+	default:
+		log.Println("Unknown ScheduledMaintenance impact: ", sm.Impact)
+		return true
+	}
+}
+
+func (sm *ScheduledMaintenance) IsFinished() bool {
+	switch sm.Status {
+	case "completed":
+		return true
+	default:
+		return false
+	}
+}
+
 func (u *IncidentUpdate) Format() string {
 	// WTF: why no format literal?
-	return fmt.Sprintf("<b>%s</b> <i>at %s</i>:\n<u>%s</u>",
+	return fmt.Sprintf("<u><b>%s</b> <i>at %s</i></u>:\n%s",
 		u.Status,
 		u.UpdatedAt.Format(updateDateLayout),
 		u.Body)
