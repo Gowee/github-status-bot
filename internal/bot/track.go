@@ -37,7 +37,7 @@ func (bot *Bot) updateOnce() {
 		}
 		err = bot.Client.SetGroupTitle(
 			bot.Chat,
-			fmt.Sprintf("GitHub: %s %s", currSts.Status.Description, currSts.Status.ToEmoji()),
+			fmt.Sprintf("%sGitHub: %s", currSts.Status.Description, currSts.Status.ToEmoji()),
 		)
 		if err != nil {
 			log.Println("Failed to update chat title: ", err)

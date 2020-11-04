@@ -71,7 +71,7 @@ func (s *Status) ToEmoji() string {
 	indicator := s.Indicator
 	switch indicator {
 	case "none":
-		return "✅"
+		return ""
 	case "minor":
 		return "❕"
 	case "major":
