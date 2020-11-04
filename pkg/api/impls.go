@@ -102,7 +102,10 @@ func (sm *ScheduledMaintenance) Format() string {
 	lines[0] = header
 	if len(sm.IncidentUpdates) > 3 {
 		lines[1] = sm.IncidentUpdates[len(sm.IncidentUpdates)-1].Format()
-		lines[2] = fmt.Sprintf("<pre>----- %d update omitted -----</pre>", len(sm.IncidentUpdates)-3)
+		lines[2] = fmt.Sprintf(
+			"<pre>----- %d update omitted -----</pre>",
+			len(sm.IncidentUpdates)-3,
+		)
 		lines[3] = sm.IncidentUpdates[1].Format()
 		lines[4] = sm.IncidentUpdates[0].Format()
 	} else {

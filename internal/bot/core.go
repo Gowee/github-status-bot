@@ -142,7 +142,12 @@ func (bot *Bot) newEvent(newEvent api.Event) *data.Event {
 	msg, err := bot.Client.Send(
 		tb.ChatID(bot.Chat.ID),
 		newEvent.Format(),
-		&tb.SendOptions{DisableWebPagePreview: true, DisableNotification: silent, ParseMode: "HTML"})
+		&tb.SendOptions{
+			DisableWebPagePreview: true,
+			DisableNotification:   silent,
+			ParseMode:             "HTML",
+		},
+	)
 	log.Println("New event sent: ", newEvent.GetID())
 	if err != nil {
 		log.Println("Failed to send message for event: ", newEvent.GetID(), err)
@@ -163,7 +168,11 @@ func (bot *Bot) updateEvent(storedEvent *data.Event, newEvent api.Event, forceUp
 		_, err := bot.Client.Edit(
 			storedEvent.MessageReference,
 			newEvent.Format(),
-			&tb.SendOptions{DisableWebPagePreview: true, DisableNotification: silent, ParseMode: "HTML"},
+			&tb.SendOptions{
+				DisableWebPagePreview: true,
+				DisableNotification:   silent,
+				ParseMode:             "HTML",
+			},
 		)
 		// WTF: why telebot's error is not typed so that to compared with errors.Is?
 
