@@ -10,6 +10,7 @@ test:
 	go test ./...
 format:
 	go fmt ./...
+	golines -w .
 check-format:
 	./ensure_formatted.sh
 clean:
@@ -32,4 +33,6 @@ packr-down:
 # Adapted from https://gitlab.com/NickCao/RAIT/-/blob/master/Makefile
 # Ref: https://superuser.com/questions/429693/git-list-all-files-currently-under-source-control
 # Ref: https://stackoverflow.com/questions/39792766/checking-to-find-out-if-go-code-has-been-formatted/39796269
-# https://stackoverflow.com/questions/2145590/what-is-the-purpose-of-phony-in-a-makefile
+# Ref: https://stackoverflow.com/questions/2145590/what-is-the-purpose-of-phony-in-a-makefile
+# Ref: https://github.com/gobuffalo/packr/issues/175
+# Ref: https://github.com/gobuffalo/packr/issues/169#issuecomment-474205649
