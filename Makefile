@@ -17,6 +17,8 @@ clean:
 	rm -r bin/ || true
 	$(MAKE) packr-down || true
 
+setup-dep:
+	go mod download -x
 setup-devdep:
 	go get -u github.com/segmentio/golines
 	go get -u github.com/gobuffalo/packr/v2/packr2
