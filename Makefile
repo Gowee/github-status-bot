@@ -1,4 +1,4 @@
-GOPATH := $(HOME)/go/bin/
+GOBIN := $(shell go env GOPATH)/bin/
 MODULE := $(shell head -n 1 go.mod | cut -d' ' - -f2)
 PACKRGO := "pkg/assets/assets-packr.go"
 
@@ -17,12 +17,15 @@ clean:
 	rm -r bin/ || true
 	$(MAKE) packr-down || true
 
+setup-devdep:
+	go get -u github.com/segmentio/golines
+	go get -u github.com/gobuffalo/packr/v2/packr2
+	go mod tidy
 packr-up:
-	$(GOPATH)packr2 --ignore-imports
+	$(GOBIN)packr2 --ignore-imports
 	sed -i 's!^import _.*!import _ "$(MODULE)/packrd"!' $(PACKRGO)
-
 packr-down:
-	$(GOPATH)packr2 clean
+	$(GOBIN)packr2 clean
 	rm $(PACKRGO)
 
 .PHONY: build
@@ -36,3 +39,8 @@ packr-down:
 # Ref: https://stackoverflow.com/questions/2145590/what-is-the-purpose-of-phony-in-a-makefile
 # Ref: https://github.com/gobuffalo/packr/issues/175
 # Ref: https://github.com/gobuffalo/packr/issues/169#issuecomment-474205649
+# Ref: https://github.com/golang/go/issues/31273#issuecomment-480196029
+
+# WTF/TODO: How to go get without touching go.{mod,sum?}
+#	ref: https://github.com/golang/go/issues/31273
+# 	ref: https://github.com/golang/go/issues/30515

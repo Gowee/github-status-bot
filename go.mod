@@ -17,3 +17,4 @@ require (
 
 // Note: clean this via `go mod tidy`
 // WTF: why `go get` a unrelated binary package resulting in an entry here?
+// WTF: why no dev dependencies?
