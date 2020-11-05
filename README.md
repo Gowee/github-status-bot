@@ -1,4 +1,4 @@
-[![Badge for Docker build status](https://img.shields.io/docker/cloud/build/gowe/githubs-status-bot)](https://hub.docker.com/repository/docker/gowe/githubs-status-bot)
+[![Badge for Docker build status](https://img.shields.io/docker/cloud/build/gowe/ghstsbot)](https://hub.docker.com/repository/docker/gowe/ghstsbot)
 ![Badge for CI Check workflow](https://github.com/Gowee/github-status-bot/workflows/CI%20Check/badge.svg)
 # GitHub Status Bot
 The [@ghstsbot](https://t.me/ghstsbot) that powers the [@GitHub_Status](https://t.me/GitHub_Status) channel on Telegram.
