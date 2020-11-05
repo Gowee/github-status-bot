@@ -12,8 +12,8 @@ echo "📢📢📢
 
 Powered by https://git.io/ghstsbot" > /tmp/cdt.txt # optionally
 podman create --name ghstsbot \
-    -e TELEGRAM_BOT_TOKEN="1421669750:AAGFkUzdS-V721E7GZ0jqEZ_UXPKluuJva4" \
-    -e CHAT_ID="-1001151158389" \
+    -e TELEGRAM_BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" \
+    -e CHAT_ID="-1001234567890" \
     -e CHECK_INTERVAL=300 \
     -e CHAT_DESCRIPTION_TEMPLATE=$(cat /tmp/cdt.txt | base64 -w0)
     -v ghstsbot:/app/data \
