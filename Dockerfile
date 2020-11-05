@@ -1,6 +1,6 @@
 FROM golang:latest as builder
 WORKDIR /workspace
-COPY ["go.mod", "go.sum", "Makefile", "."]
+COPY ["go.mod", "go.sum", "Makefile", "./"]
 RUN set -eux; \
     make setup-devdep; \
     make setup-dep
