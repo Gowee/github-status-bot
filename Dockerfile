@@ -10,7 +10,7 @@ RUN make build
 FROM alpine:latest
 WORKDIR /app
 VOLUME ["/app/data"]
-COPY --from=builder bin/ghstsbot /app/
-COPY --from=builder entrypoint.sh /app/
+COPY --from=builder /workspace/bin/ghstsbot /app/ghstsbot
+COPY --from=builder /workspace/entrypoint.sh /app/entrypoint.sh
 RUN chmod +x entrypoint.sh
-ENTRYPOINT ["/app/ghstsbot"]
+ENTRYPOINT ["sh", "entrypoint.sh"]
