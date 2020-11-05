@@ -3,6 +3,7 @@ package bot
 import (
 	"fmt"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/gowee/github-status-bot/pkg/data"
@@ -10,10 +11,11 @@ import (
 )
 
 type Bot struct {
-	Client        *tb.Bot
-	Chat          *tb.Chat
-	DB            *data.Database
-	CheckInterval time.Duration
+	Client                  *tb.Bot
+	Chat                    *tb.Chat
+	DB                      *data.Database
+	CheckInterval           time.Duration
+	ChatDescriptionTemplate string
 }
 
 func NewBotFromOptions(options Options) Bot {
@@ -41,13 +43,20 @@ func NewBotFromOptions(options Options) Bot {
 	} else if interval < 5*time.Second {
 		interval = 5 * time.Second // minimum interval
 	}
-	// WTF: why the auto-enforced format for * is different here?
+	// WTF: why the auto-enforced code format for * is different here?
+
+	chatDescriptionTemplate := options.ChatDescriptionTemplate
+	if chatDescriptionTemplate != "" && !strings.Contains(chatDescriptionTemplate, "%s") {
+		fmt.Println(chatDescriptionTemplate)
+		panic("chatDescriptionTemplate is present but invalid")
+	}
 
 	return Bot{
-		Client:        client,
-		Chat:          chat,
-		DB:            &db,
-		CheckInterval: interval,
+		Client:                  client,
+		Chat:                    chat,
+		DB:                      &db,
+		CheckInterval:           interval,
+		ChatDescriptionTemplate: options.ChatDescriptionTemplate,
 	}
 }
 

@@ -34,3 +34,4 @@ func (db *Database) Store(document *RootDocument) error {
 }
 
 // WTF: why manually use reference type here and there?
+// TODO: Update the WTF

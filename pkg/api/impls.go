@@ -31,7 +31,8 @@ func (i *Incident) Format() string {
 	// W-T-F: why no dynamic array?
 	// 	ref: https://stackoverflow.com/questions/33834742/remove-and-adding-elements-to-array-in-go-lang
 	// 	ref: https://ewencp.org/blog/golang-iterators/index.html
-	// Update: It is: https://tour.golang.org/moretypes/13
+	// WTFUpdate: It is: https://tour.golang.org/moretypes/13
+	// 	 note: the append pattern just exposes the release/alloc mem prodecure as is in other languages
 	// WTF: why no combinator such as map?
 	if len(i.IncidentUpdates) > 3 {
 		// The original updates are sorted descendingly by date.
@@ -44,6 +45,8 @@ func (i *Incident) Format() string {
 			lines[len(i.IncidentUpdates)-idx] = update.Format()
 		}
 		// WTF: why no built-in reverse?
+		// WTFUpdate: there is, but is hard to use due to the poor type system
+		//	 ref: https://stackoverflow.com/a/18343326/5488616
 	}
 	return strings.Join(lines, "\n")
 }
@@ -241,3 +244,4 @@ func (c *Component) Format() string {
 }
 
 // WTF: why go fmt does not break long lines (by default?)?
+// WTFUpdate: there is a 3rd project called golines, but it seems not hot

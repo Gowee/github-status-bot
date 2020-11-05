@@ -41,4 +41,4 @@ func (s *Storage) Store(data interface{}) error {
 // WTF: why lint prevent self and this?
 // 	ref: https://stackoverflow.com/questions/23482068/in-go-is-naming-the-receiver-variable-self-misleading-or-good-practice
 
-// WTF: why no generic struct so that to be typesafe?
+// WTF: why no generic struct so that to be typesafe? e.g. HashMap, data.Database/Storage

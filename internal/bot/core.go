@@ -71,8 +71,12 @@ func (bot *Bot) updateOnce(forceUpdate bool) {
 		}
 	}
 
-	if forceUpdate || currSts.Status.Indicator != prevData.GlobalStatusIndicator {
-		err = bot.Client.SetGroupDescription(bot.Chat, formatMultipleComponents(currSts.Components))
+	if bot.ChatDescriptionTemplate != "" &&
+		(forceUpdate || currSts.Status.Indicator != prevData.GlobalStatusIndicator) {
+		err := bot.Client.SetGroupDescription(
+			bot.Chat,
+			fmt.Sprintf(bot.ChatDescriptionTemplate, formatMultipleComponents(currSts.Components)),
+		)
 		if err == nil {
 			log.Println("Updated chat description")
 		} else if !strings.Contains(err.Error(), ": chat description is not modified") {

@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"encoding/base64"
 	"os"
 )
 
@@ -37,3 +38,8 @@ func Min(x, y int) int {
 // 	}
 // 	return
 // }
+
+func B64Dec(data string) (string, error) {
+	text, err := base64.StdEncoding.DecodeString(data)
+	return string(text), err
+}
