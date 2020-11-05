@@ -23,7 +23,7 @@ podman logs -f ghstsbot
 ```
 `CHECK_INTERVAL` defaults to be 300 if not set.
 
-If `CHAT_DESCRIPTION_TEMPLATE` is not set, chat description updating will be disabled. Base64 encoding there is optional in case line break is not passed properly by shell. 
+If `CHAT_DESCRIPTION_TEMPLATE` is not set, chat description updating will be disabled. Base64 encoding there is optional in case line break is not passed properly by shell. If present, `%s` should be included and will be replaced to generated content. Set it to a single `%s` (i.e. `-e CHAT_DESCRIPTION_TEMPLATE="%s"`) to activate chat description updating without putting any additional text.
 
 ----
 <sub>The project, channel and bot is not affiliated in any way with GitHub. All images related to GitHub or Octocat are used for [fair use](https://en.wikipedia.org/wiki/Fair_use) only and not covered by the copyright license of the project.</sub>
