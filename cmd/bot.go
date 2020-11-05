@@ -22,13 +22,18 @@ func main() {
 		return
 	}
 
+	dataFilePath := os.Getenv("DATA_FILE_PATH")
+	if chatID == "" {
+		dataFilePath = "./data.json"
+	}
+
 	interval, _ := strconv.ParseInt(os.Getenv("CHECK_INTERVAL"), 10, 32)
 
 	bot := bot.NewBotFromOptions(
 		bot.Options{
 			BotToken:      token,
 			ChatID:        chatID,
-			DataFilePath:  "./data.json",
+			DataFilePath:  dataFilePath,
 			CheckInterval: time.Duration(interval) * time.Second,
 		},
 	)

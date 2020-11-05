@@ -8,5 +8,9 @@ COPY . .
 RUN make build
 
 FROM alpine:latest
-COPY --from=builder /workspace/bin/ghstsbot /usr/local/bin/ghstsbot
-ENTRYPOINT ["/usr/local/bin/ghstsbot"]
+WORKDIR /app
+VOLUME ["/app/data"]
+COPY --from=builder bin/ghstsbot /app/
+COPY --from=builder entrypoint.sh /app/
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["/app/ghstsbot"]
