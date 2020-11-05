@@ -38,10 +38,14 @@ func main() {
 		//      it seems to be a design flaw in the overall syntax.
 		chatDescriptionTemplate, err = utils.B64Dec(chatDescriptionTemplate)
 		if err != nil || !strings.Contains(chatDescriptionTemplate, "%s") {
-			log.Fatal(
-				"CHAT_DESCRIPTION_TEMPLATE expects a \"%s\" which will be replaced to generated content",
-			)
+			msg := "CHAT_DESCRIPTION_TEMPLATE expects a \"%s\" which will be replaced to generated content"
+			log.Fatal(msg)
 			return
+			// WTF: why go test/vet errors on the %s here?
+			// 	    go test / go vet gives FP error on %s in argument string of Println,
+			//      while the check cannot be dislabed for a specific line.
+			//   ref: https://github.com/golang/go/issues/29854
+			//   ref: https://github.com/golang/go/issues/17058
 		}
 		// chatDescriptionTemplate = "%s\n\n\nPowered by https://git.io/ghstsbot"
 	}
