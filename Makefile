@@ -4,10 +4,10 @@ PACKRGO := "pkg/assets/assets-packr.go"
 
 build:
 	$(MAKE) packr-up
-	CGO_ENABLED=0 go build -trimpath -o bin/ghstsbot cmd/bot.go
+	CGO_ENABLED=0 go build -v -trimpath -o bin/ghstsbot cmd/bot.go
 	$(MAKE) packr-down
 test:
-	go test ./...
+	go test -v ./...
 format:
 	go fmt ./...
 	golines -w .
