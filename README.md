@@ -7,7 +7,14 @@ The [@ghstsbot](https://t.me/ghstsbot) that powers the [@GitHub_Status](https://
 **CLi**:
 ```shell
 podman volume create ghstsbot
-podman create --name ghstsbot -e TELEGRAM_BOT_TOKEN="123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11" -e CHAT_ID="-1001234567890" -e CHECK_INTERVAL=300 ghstsbot
+podman create --name ghstsbot \
+    -e TELEGRAM_BOT_TOKEN="1421669750:AAGFkUzdS-V721E7GZ0jqEZ_UXPKluuJva4" \
+    -e CHAT_ID="-1001151158389" \
+    -e CHECK_INTERVAL=300 \
+    -v ghstsbot:/app/data \
+    ghstsbot
+podman start ghstsbot
+podman logs -f ghstsbot
 ```
 
 ----
