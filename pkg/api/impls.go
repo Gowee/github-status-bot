@@ -240,7 +240,7 @@ func (c *Component) ToStatusSimple() string {
 }
 
 func (c *Component) Format() string {
-	return fmt.Sprintf("%s: %s%s", c.Name, c.ToStatusSimple(), c.ToStatusEmoji())
+	return fmt.Sprintf("%s: %s %s", c.Name, c.ToStatusSimple(), c.ToStatusEmoji())
 }
 
 // WTF: why go fmt does not break long lines (by default?)?
