@@ -57,6 +57,7 @@ func (bot *Bot) updateOnce(forceUpdate bool) {
 			&tb.Photo{File: tb.File{FileReader: currSts.Status.ToIcon()}})
 		if err == nil {
 			log.Println("Updated chat photo")
+			bot.chatServiceMessages <- time.Now()
 		} else {
 			log.Println("Failed to update chat photo: ", err)
 		}
@@ -66,6 +67,7 @@ func (bot *Bot) updateOnce(forceUpdate bool) {
 		)
 		if err == nil {
 			log.Println("Updated chat title")
+			bot.chatServiceMessages <- time.Now()
 		} else {
 			log.Println("Failed to update chat title: ", err)
 		}

@@ -16,6 +16,7 @@ type Bot struct {
 	DB                      *data.Database
 	CheckInterval           time.Duration
 	ChatDescriptionTemplate string
+	chatServiceMessages     chan time.Time // service messages to be deleted
 }
 
 func NewBotFromOptions(options Options) Bot {
@@ -47,8 +48,12 @@ func NewBotFromOptions(options Options) Bot {
 
 	chatDescriptionTemplate := options.ChatDescriptionTemplate
 	if chatDescriptionTemplate != "" && !strings.Contains(chatDescriptionTemplate, "%s") {
-		fmt.Println(chatDescriptionTemplate)
-		panic("chatDescriptionTemplate is present but invalid")
+		panic(
+			fmt.Sprintf(
+				"chatDescriptionTemplate is present but invalid: %s",
+				chatDescriptionTemplate,
+			),
+		)
 	}
 
 	return Bot{
@@ -57,6 +62,7 @@ func NewBotFromOptions(options Options) Bot {
 		DB:                      &db,
 		CheckInterval:           interval,
 		ChatDescriptionTemplate: options.ChatDescriptionTemplate,
+		chatServiceMessages:     make(chan time.Time),
 	}
 }
 
@@ -68,25 +74,41 @@ func (bot *Bot) Run() {
 		bot.Client.Send(m.Sender, "Hello World!")
 	})
 
-	// bot.Client.Handle(tb.OnChannelPost, func(m *tb.Message) {
-	// 	if m.Chat.ID == bot.Chat.ID {
-	// 		// channel posts only
-	// 		// log.Println("channel post", m)
-	// 		if m.NewGroupPhoto != nil {
-	// 			if err := bot.Client.Delete(m); err == nil {
-	// 				log.Println("Deleted a NewGroupPhoto message")
-	// 			} else {
-	// 				log.Println("Failed to delete a NewGroupPhoto message", err)
-	// 			}
-	// 		} else if m.NewGroupTitle != "" {
-	// 			if err := bot.Client.Delete(m); err == nil {
-	// 				log.Println("Deleted a NewGroupTitle message")
-	// 			} else {
-	// 				log.Println("Failed to delete a NewGroupTitle message", err)
-	// 			}
-	// 		}
-	// 	}
-	// })
+	// delete service messages of chat title/description updates
+	bot.Client.Handle(tb.OnChannelPost, func(m *tb.Message) {
+		if m.Chat.ID == bot.Chat.ID {
+			if m.NewGroupPhoto != nil || m.NewGroupTitle != "" {
+				// relate setChatTitle/Photo action with service message by time
+				for {
+					timeout := time.After(3 * time.Second)
+					select {
+					case t := <-bot.chatServiceMessages:
+						if time.Now().Sub(t) > 3*time.Second {
+							// a possible case:
+							// setChatTitle returns True, resulting a entry in the channel, while
+							// the new title is the same as the previous one, resulting in no
+							// (new) service message
+							log.Println("Discarding a stale entry in chatServiceMessages channel")
+						} else {
+							if err := bot.Client.Delete(m); err == nil {
+								log.Println("Deleted a service message")
+							} else {
+								log.Println("Failed to delete a service message", err)
+							}
+							return
+						}
+						break
+					case <-timeout:
+						log.Println(
+							"A service message is not deleted as it seems to be sent by others",
+						)
+						return
+						break
+					}
+				}
+			}
+		}
+	})
 
 	stop := make(chan struct{})
 	go bot.trackUpdates(stop)
