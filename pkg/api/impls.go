@@ -183,6 +183,8 @@ func (s *Status) ToIcon() io.Reader {
 		return bytes.NewReader(assets.GitHubIconOrange)
 	case "critical":
 		return bytes.NewReader(assets.GitHubIconYellow)
+	case "maintenance":
+		return bytes.NewReader(assets.GitHubIconBlue) // Undocumented status indicator
 	default:
 		log.Println("Unknown status indicator: ", indicator)
 		return bytes.NewReader(assets.GitHubIconNormal)
@@ -200,6 +202,8 @@ func (s *Status) ToEmoji() string {
 		return "❗️"
 	case "critical":
 		return "‼️"
+	case "maintenance":
+		return "🛠️" // Undocumented status indicator
 	default:
 		log.Println("Unknown status indicator: ", indicator)
 		return "❔"
@@ -216,6 +220,8 @@ func (c *Component) ToStatusEmoji() string {
 		return "❗️"
 	case "major_outage":
 		return "‼️"
+	case "under_maintenance": // Undocumented component status
+		return "🛠️"
 	default:
 		log.Printf("Unknown status: %s, for component: %s\n", c.Status, c.Name)
 		return "❔"
@@ -233,6 +239,8 @@ func (c *Component) ToStatusSimple() string {
 		return "Degraded"
 	case "major_outage":
 		return "Incident"
+	case "under_maintenance": // Undocumented component status
+		return "Maintenance"
 	default:
 		log.Printf("Unknown status: %s, for component: %s\n", c.Status, c.Name)
 		return "Unknown"

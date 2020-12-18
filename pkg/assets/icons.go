@@ -16,6 +16,7 @@ var (
 	GitHubIconNormal      = extract("icon-normal.png")
 	GitHubIconGreen       = extract("icon-green.png")
 	GitHubIconTenderGreen = extract("icon-tender-green.png")
+	GitHubIconBlue        = extract("icon-blue.png")
 	GitHubIconYellow      = extract("icon-yellow.png")
 	GitHubIconOrange      = extract("icon-orange.png")
 	GitHubIconRed         = extract("icon-red.png")
