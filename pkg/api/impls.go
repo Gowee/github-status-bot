@@ -41,7 +41,11 @@ func (i *Incident) Format() string {
 		if len(i.IncidentUpdates) > 4 {
 			suf = "s"
 		}
-		lines[2] = fmt.Sprintf("<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>", len(i.IncidentUpdates)-3, suf)
+		lines[2] = fmt.Sprintf(
+			"<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>",
+			len(i.IncidentUpdates)-3,
+			suf,
+		)
 		lines[3] = i.IncidentUpdates[1].Format("")
 		lines[4] = i.IncidentUpdates[0].Format(i.Shortlink)
 	} else {
@@ -116,7 +120,11 @@ func (sm *ScheduledMaintenance) Format() string {
 		if len(sm.IncidentUpdates) > 4 {
 			suf = "s"
 		}
-		lines[2] = fmt.Sprintf("<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>", len(sm.IncidentUpdates)-3, suf)
+		lines[2] = fmt.Sprintf(
+			"<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>",
+			len(sm.IncidentUpdates)-3,
+			suf,
+		)
 		lines[3] = sm.IncidentUpdates[1].Format("")
 		lines[4] = sm.IncidentUpdates[0].Format(sm.Shortlink)
 	} else {
