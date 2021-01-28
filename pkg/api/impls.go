@@ -11,7 +11,7 @@ import (
 	"github.com/gowee/github-status-bot/pkg/utils"
 )
 
-const updateDateLayout = "2006-01-02 15:04:05"
+const updateDateLayout = "Jan 2, 15:04" // 2006-01-02 15:04:05
 
 func (i *Incident) Format() string {
 	statusIcon := i.ToImpactEmoji() // "⚠️"
@@ -21,7 +21,7 @@ func (i *Incident) Format() string {
 	} else if i.Status == "postmortem" {
 		statusIcon = "☑️"
 	}
-	header := fmt.Sprintf("<b><a href=\"%s\">%s</a></b> %s\n", i.Shortlink, i.Name, statusIcon)
+	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n", i.Name, i.Shortlink, statusIcon)
 	// if i.Status != "resolved" {
 	// 	header += fmt.Sprintf("(%s)", i.Status)
 	// }
@@ -36,13 +36,21 @@ func (i *Incident) Format() string {
 	// WTF: why no combinator such as map?
 	if len(i.IncidentUpdates) > 3 {
 		// The original updates are sorted descendingly by date.
-		lines[1] = i.IncidentUpdates[len(i.IncidentUpdates)-1].Format()
-		lines[2] = fmt.Sprintf("<pre>----- %d update omitted -----</pre>", len(i.IncidentUpdates)-3)
-		lines[3] = i.IncidentUpdates[1].Format()
-		lines[4] = i.IncidentUpdates[0].Format()
+		lines[1] = i.IncidentUpdates[len(i.IncidentUpdates)-1].Format("")
+		suf := ""
+		if len(i.IncidentUpdates) > 4 {
+			suf = "s"
+		}
+		lines[2] = fmt.Sprintf("<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>", len(i.IncidentUpdates)-3, suf)
+		lines[3] = i.IncidentUpdates[1].Format("")
+		lines[4] = i.IncidentUpdates[0].Format(i.Shortlink)
 	} else {
 		for idx, update := range i.IncidentUpdates {
-			lines[len(i.IncidentUpdates)-idx] = update.Format()
+			url := ""
+			if idx == 0 {
+				url = i.Shortlink
+			}
+			lines[len(i.IncidentUpdates)-idx] = update.Format(url)
 		}
 		// WTF: why no built-in reverse?
 		// WTFUpdate: there is, but is hard to use due to the poor type system
@@ -98,21 +106,26 @@ func (i *Incident) ToImpactEmoji() string {
 func (sm *ScheduledMaintenance) Format() string {
 	statusIcon := sm.ToStatusEmoji()
 	// Currently the impact is not showed.
-	header := fmt.Sprintf("<b><a href=\"%s\">%s</a></b> %s\n", sm.Shortlink, sm.Name, statusIcon)
+	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n", sm.Name, sm.Shortlink, statusIcon)
 
 	lines := make([]string, 1+utils.Min(3+1, len(sm.IncidentUpdates)))
 	lines[0] = header
 	if len(sm.IncidentUpdates) > 3 {
-		lines[1] = sm.IncidentUpdates[len(sm.IncidentUpdates)-1].Format()
-		lines[2] = fmt.Sprintf(
-			"<pre>----- %d update omitted -----</pre>",
-			len(sm.IncidentUpdates)-3,
-		)
-		lines[3] = sm.IncidentUpdates[1].Format()
-		lines[4] = sm.IncidentUpdates[0].Format()
+		lines[1] = sm.IncidentUpdates[len(sm.IncidentUpdates)-1].Format("")
+		suf := ""
+		if len(sm.IncidentUpdates) > 4 {
+			suf = "s"
+		}
+		lines[2] = fmt.Sprintf("<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>", len(sm.IncidentUpdates)-3, suf)
+		lines[3] = sm.IncidentUpdates[1].Format("")
+		lines[4] = sm.IncidentUpdates[0].Format(sm.Shortlink)
 	} else {
 		for idx, update := range sm.IncidentUpdates {
-			lines[len(sm.IncidentUpdates)-idx] = update.Format()
+			url := ""
+			if idx == 0 {
+				url = sm.Shortlink
+			}
+			lines[len(sm.IncidentUpdates)-idx] = update.Format(url)
 		}
 	}
 	return strings.Join(lines, "\n")
@@ -164,12 +177,16 @@ func (sm *ScheduledMaintenance) IsFinished() bool {
 	}
 }
 
-func (u *IncidentUpdate) Format() string {
+func (u *IncidentUpdate) Format(url string) string {
 	// WTF: why no format literal?
-	return fmt.Sprintf("<u><b>%s</b> <i>at %s</i></u>:\n%s",
-		u.Status,
-		u.UpdatedAt.Format(updateDateLayout),
-		u.Body)
+	var status string = u.Status
+	if url != "" {
+		status = fmt.Sprintf("<a href=\"%s\">%s</a>", url, u.Status)
+	}
+	return fmt.Sprintf("<b>%s</b> - %s <i>@ %s</i>",
+		status,
+		u.Body,
+		u.UpdatedAt.Format(updateDateLayout))
 }
 
 func (s *Status) ToIcon() io.Reader {
