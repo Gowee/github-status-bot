@@ -12,7 +12,7 @@ import (
 )
 
 const updateDateLayout = "Jan 2, 15:04" // 2006-01-02 15:04:05
-const maximumUpdatesPerMessage = 3      // MUST >= 2
+const maximumUpdatesPerMessage = 0xFF   // MUST >= 2
 
 func formatIncidentOrScheduledMaintenance(name string, url string, statusIcon string, updates []IncidentUpdate) string {
 	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n\n", name, url, statusIcon)
@@ -40,15 +40,14 @@ func formatIncidentOrScheduledMaintenance(name string, url string, statusIcon st
 			len(updates)-maximumUpdatesPerMessage,
 			suf,
 		)
-		for i, update := range updates[1:] {
-			lines[len(lines)-1-i] = update.Format("")
+		for i, update := range updates[1 : maximumUpdatesPerMessage-1] {
+			lines[len(lines)-1-i-1] = update.Format("")
 		}
-		// lines[2] = updates[1].Format("")
 		lines[len(lines)-1] = updates[0].Format(url)
 	} else {
 		lines[len(updates)-1] = updates[0].Format(url)
-		for idx := 1; idx < len(updates); idx++ {
-			lines[len(updates)-1-idx] = updates[idx].Format(url)
+		for i, update := range updates[1:] {
+			lines[len(updates)-1-i-1] = update.Format("")
 		}
 		// WTF: why no built-in reverse?
 		// WTFUpdate: there is, but is hard to use due to the poor type system
