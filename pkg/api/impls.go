@@ -12,6 +12,50 @@ import (
 )
 
 const updateDateLayout = "Jan 2, 15:04" // 2006-01-02 15:04:05
+const maximumUpdatesPerMessage = 3      // MUST >= 2
+
+func formatIncidentOrScheduledMaintenance(name string, url string, statusIcon string, updates []IncidentUpdate) string {
+	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n\n", name, url, statusIcon)
+	// if i.Status != "resolved" {
+	// 	header += fmt.Sprintf("(%s)", i.Status)
+	// }
+
+	lines := make([]string, utils.Min(maximumUpdatesPerMessage+1, len(updates)))
+	// W-T-F: why no dynamic array?
+	// 	ref: https://stackoverflow.com/questions/33834742/remove-and-adding-elements-to-array-in-go-lang
+	// 	ref: https://ewencp.org/blog/golang-iterators/index.html
+	// WTFUpdate: It is: https://tour.golang.org/moretypes/13
+	// 	 note: the append pattern just exposes the release/alloc mem prodecure as is in other languages
+	// WTF: why no combinator such as map?
+
+	// The original updates are sorted descendingly by date. Just reverse it.
+	if len(updates) > maximumUpdatesPerMessage {
+		lines[0] = updates[len(updates)-1].Format("")
+		suf := ""
+		if len(updates) > maximumUpdatesPerMessage+1 {
+			suf = "s"
+		}
+		lines[1] = fmt.Sprintf(
+			"<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>",
+			len(updates)-maximumUpdatesPerMessage,
+			suf,
+		)
+		for i, update := range updates[1:] {
+			lines[len(lines)-1-i] = update.Format("")
+		}
+		// lines[2] = updates[1].Format("")
+		lines[len(lines)-1] = updates[0].Format(url)
+	} else {
+		lines[len(updates)-1] = updates[0].Format(url)
+		for idx := 1; idx < len(updates); idx++ {
+			lines[len(updates)-1-idx] = updates[idx].Format(url)
+		}
+		// WTF: why no built-in reverse?
+		// WTFUpdate: there is, but is hard to use due to the poor type system
+		//	 ref: https://stackoverflow.com/a/18343326/5488616
+	}
+	return header + strings.Join(lines, "\n\n")
+}
 
 func (i *Incident) Format() string {
 	statusIcon := i.ToImpactEmoji() // "⚠️"
@@ -21,46 +65,7 @@ func (i *Incident) Format() string {
 	} else if i.Status == "postmortem" {
 		statusIcon = "☑️"
 	}
-	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n", i.Name, i.Shortlink, statusIcon)
-	// if i.Status != "resolved" {
-	// 	header += fmt.Sprintf("(%s)", i.Status)
-	// }
-
-	lines := make([]string, 1+utils.Min(3+1, len(i.IncidentUpdates)))
-	lines[0] = header
-	// W-T-F: why no dynamic array?
-	// 	ref: https://stackoverflow.com/questions/33834742/remove-and-adding-elements-to-array-in-go-lang
-	// 	ref: https://ewencp.org/blog/golang-iterators/index.html
-	// WTFUpdate: It is: https://tour.golang.org/moretypes/13
-	// 	 note: the append pattern just exposes the release/alloc mem prodecure as is in other languages
-	// WTF: why no combinator such as map?
-	if len(i.IncidentUpdates) > 3 {
-		// The original updates are sorted descendingly by date.
-		lines[1] = i.IncidentUpdates[len(i.IncidentUpdates)-1].Format("")
-		suf := ""
-		if len(i.IncidentUpdates) > 4 {
-			suf = "s"
-		}
-		lines[2] = fmt.Sprintf(
-			"<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>",
-			len(i.IncidentUpdates)-3,
-			suf,
-		)
-		lines[3] = i.IncidentUpdates[1].Format("")
-		lines[4] = i.IncidentUpdates[0].Format(i.Shortlink)
-	} else {
-		for idx, update := range i.IncidentUpdates {
-			url := ""
-			if idx == 0 {
-				url = i.Shortlink
-			}
-			lines[len(i.IncidentUpdates)-idx] = update.Format(url)
-		}
-		// WTF: why no built-in reverse?
-		// WTFUpdate: there is, but is hard to use due to the poor type system
-		//	 ref: https://stackoverflow.com/a/18343326/5488616
-	}
-	return strings.Join(lines, "\n")
+	return formatIncidentOrScheduledMaintenance(i.Name, i.Shortlink, statusIcon, i.IncidentUpdates)
 }
 
 func (i *Incident) ShouldNotify() bool {
@@ -110,33 +115,7 @@ func (i *Incident) ToImpactEmoji() string {
 func (sm *ScheduledMaintenance) Format() string {
 	statusIcon := sm.ToStatusEmoji()
 	// Currently the impact is not showed.
-	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n", sm.Name, sm.Shortlink, statusIcon)
-
-	lines := make([]string, 1+utils.Min(3+1, len(sm.IncidentUpdates)))
-	lines[0] = header
-	if len(sm.IncidentUpdates) > 3 {
-		lines[1] = sm.IncidentUpdates[len(sm.IncidentUpdates)-1].Format("")
-		suf := ""
-		if len(sm.IncidentUpdates) > 4 {
-			suf = "s"
-		}
-		lines[2] = fmt.Sprintf(
-			"<pre>┄┄┄┄┄ %d update%s omitted ┄┄┄┄┄</pre>",
-			len(sm.IncidentUpdates)-3,
-			suf,
-		)
-		lines[3] = sm.IncidentUpdates[1].Format("")
-		lines[4] = sm.IncidentUpdates[0].Format(sm.Shortlink)
-	} else {
-		for idx, update := range sm.IncidentUpdates {
-			url := ""
-			if idx == 0 {
-				url = sm.Shortlink
-			}
-			lines[len(sm.IncidentUpdates)-idx] = update.Format(url)
-		}
-	}
-	return strings.Join(lines, "\n")
+	return formatIncidentOrScheduledMaintenance(sm.Name, sm.Shortlink, statusIcon, sm.IncidentUpdates)
 }
 
 func (sm *ScheduledMaintenance) ToStatusEmoji() string {
