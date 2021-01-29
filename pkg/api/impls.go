@@ -14,7 +14,12 @@ import (
 const updateDateLayout = "Jan 2, 15:04" // 2006-01-02 15:04:05
 const maximumUpdatesPerMessage = 0xF    // MUST >= 2
 
-func formatIncidentOrScheduledMaintenance(name string, url string, statusIcon string, updates []IncidentUpdate) string {
+func formatIncidentOrScheduledMaintenance(
+	name string,
+	url string,
+	statusIcon string,
+	updates []IncidentUpdate,
+) string {
 	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n\n", name, url, statusIcon)
 	// if i.Status != "resolved" {
 	// 	header += fmt.Sprintf("(%s)", i.Status)
@@ -114,7 +119,12 @@ func (i *Incident) ToImpactEmoji() string {
 func (sm *ScheduledMaintenance) Format() string {
 	statusIcon := sm.ToStatusEmoji()
 	// Currently the impact is not showed.
-	return formatIncidentOrScheduledMaintenance(sm.Name, sm.Shortlink, statusIcon, sm.IncidentUpdates)
+	return formatIncidentOrScheduledMaintenance(
+		sm.Name,
+		sm.Shortlink,
+		statusIcon,
+		sm.IncidentUpdates,
+	)
 }
 
 func (sm *ScheduledMaintenance) ToStatusEmoji() string {
