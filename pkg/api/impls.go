@@ -12,7 +12,7 @@ import (
 )
 
 const updateDateLayout = "Jan 2, 15:04" // 2006-01-02 15:04:05
-const maximumUpdatesPerMessage = 0xFF   // MUST >= 2
+const maximumUpdatesPerMessage = 0xF    // MUST >= 2
 
 func formatIncidentOrScheduledMaintenance(name string, url string, statusIcon string, updates []IncidentUpdate) string {
 	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n\n", name, url, statusIcon)
