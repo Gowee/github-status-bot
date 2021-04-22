@@ -9,18 +9,21 @@ import (
 
 	"github.com/gowee/github-status-bot/pkg/assets"
 	"github.com/gowee/github-status-bot/pkg/utils"
+	// "github.com/gomarkdown/markdown"
 )
 
-const updateDateLayout = "Jan 2, 15:04" // 2006-01-02 15:04:05
-const maximumUpdatesPerMessage = 0xF    // MUST >= 2
+const updateDateLayout = "Jan 2, 15:04 UTC" // 2006-01-02 15:04:05
+const maximumUpdatesPerMessage = 0xF        // MUST >= 2
+const lineDelimiter = "\n\n"
 
 func formatIncidentOrScheduledMaintenance(
 	name string,
 	url string,
 	statusIcon string,
 	updates []IncidentUpdate,
+	footer string,
 ) string {
-	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>\n\n", name, url, statusIcon)
+	header := fmt.Sprintf("<b>%s</b> <a href=\"%s\">%s</a>%s", name, url, statusIcon, lineDelimiter)
 	// if i.Status != "resolved" {
 	// 	header += fmt.Sprintf("(%s)", i.Status)
 	// }
@@ -58,7 +61,15 @@ func formatIncidentOrScheduledMaintenance(
 		// WTFUpdate: there is, but is hard to use due to the poor type system
 		//	 ref: https://stackoverflow.com/a/18343326/5488616
 	}
-	return header + strings.Join(lines, "\n\n")
+
+	full := header + strings.Join(lines, lineDelimiter)
+	if footer != "" {
+		if !strings.HasSuffix(full, lineDelimiter) {
+			full += lineDelimiter
+		}
+		full += footer
+	}
+	return full
 }
 
 func (i *Incident) Format() string {
@@ -69,7 +80,13 @@ func (i *Incident) Format() string {
 	} else if i.Status == "postmortem" {
 		statusIcon = "☑️"
 	}
-	return formatIncidentOrScheduledMaintenance(i.Name, i.Shortlink, statusIcon, i.IncidentUpdates)
+	return formatIncidentOrScheduledMaintenance(
+		i.Name,
+		i.Shortlink,
+		statusIcon,
+		i.IncidentUpdates,
+		"",
+	)
 }
 
 func (i *Incident) ShouldNotify() bool {
@@ -119,11 +136,19 @@ func (i *Incident) ToImpactEmoji() string {
 func (sm *ScheduledMaintenance) Format() string {
 	statusIcon := sm.ToStatusEmoji()
 	// Currently the impact is not showed.
+
+	scheduled_for := fmt.Sprintf(
+		"<i>(%s - %s)</i>",
+		sm.ScheduledFor.Format(updateDateLayout),
+		sm.ScheduledUntil.Format(updateDateLayout),
+	)
+
 	return formatIncidentOrScheduledMaintenance(
 		sm.Name,
 		sm.Shortlink,
 		statusIcon,
 		sm.IncidentUpdates,
+		scheduled_for,
 	)
 }
 
@@ -181,7 +206,7 @@ func (u *IncidentUpdate) Format(url string) string {
 	}
 	return fmt.Sprintf("<b>%s</b> - %s <i>@ %s</i>",
 		status,
-		u.Body,
+		u.Body, // markdown.ToHTML([]byte(u.Body), nil, nil)
 		u.UpdatedAt.Format(updateDateLayout))
 }
 

@@ -110,6 +110,7 @@ func (bot *Bot) updateOnce(forceUpdate bool) {
 				prevData.Events[event.GetID()] = storedEvent
 			}
 		}
+		// log.Println(event.Format())
 	}
 
 	// TODO: transactionally update status
